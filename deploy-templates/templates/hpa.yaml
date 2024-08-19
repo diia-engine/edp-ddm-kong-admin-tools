@@ -1,0 +1,28 @@
+{{- if .Values.global.registry.kong.hpa.enabled }}
+kind: HorizontalPodAutoscaler
+apiVersion: autoscaling/v2beta2
+metadata:
+  name: {{ template "kong.fullname" . }}-hpa
+  labels:
+    {{- include "kong.metaLabels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: {{ template "kong.fullname" . }}
+    apiVersion: apps/v1
+  minReplicas: {{ .Values.global.registry.kong.hpa.minReplicas }}
+  maxReplicas: {{ .Values.global.registry.kong.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 90
+{{- end }}
